@@ -1,0 +1,77 @@
+﻿@inherits LayoutComponentBase
+@inject IJSRuntime js
+@inject NavigationManager Navigation
+@inject TokenService TokenService
+
+<PageTitle>QMS</PageTitle>
+
+<RadzenLayout Style="grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'">
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenSidebarToggle Click="@ToggleSidebar" />
+            <RadzenLabel style="text-align: center; width: 100%;" Text="ชื่อสหกรณ์"></RadzenLabel>
+            <RadzenLabel style="text-align: center; width: 10%;" Text="Header"></RadzenLabel>
+            @if (isLoggedIn)
+            {
+                <RadzenLabel style="text-align: center; width: 10%;" Text="Header">
+                    <RadzenProfileMenu>
+                        <Template>
+                            <RadzenGravatar Email="user@example.com"></RadzenGravatar>
+                        </Template>
+                        <ChildContent>
+                            <RadzenProfileMenuItem Text="Notification" Path="notification" Icon="announcement"></RadzenProfileMenuItem>
+                            <a @onclick="Logout">
+                                <RadzenProfileMenuItem Text="Logout" Icon="account_circle"></RadzenProfileMenuItem>
+                            </a>
+                        </ChildContent>
+                    </RadzenProfileMenu>
+                </RadzenLabel>
+            }
+        </RadzenStack>
+    </RadzenHeader>
+
+    @if (isLoggedIn)
+    {
+        <RadzenSidebar @bind-Expanded="@sidebarExpanded">
+            <div class="rz-p-4">
+                <Sidebar />
+            </div>
+        </RadzenSidebar>
+    }
+
+    <RadzenBody>
+        <div class="rz-p-4">
+            @Body
+        </div>
+    </RadzenBody>
+</RadzenLayout>
+
+@code {
+    bool sidebarExpanded = false; // เปลี่ยนให้เริ่มต้นเป็น false
+    bool isLoggedIn = false; // ตัวแปรเพื่อเก็บสถานะการล็อกอิน
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await TokenService.GetTokenAsync();
+            isLoggedIn = !string.IsNullOrEmpty(token);
+            StateHasChanged();
+        }
+    }
+
+    private void ToggleSidebar()
+    {
+        sidebarExpanded = !sidebarExpanded; // เปลี่ยนสถานะ
+        Console.WriteLine($"Sidebar Expanded: {sidebarExpanded}"); // ดูค่าที่เปลี่ยน
+    }
+
+    
+
+    private async Task Logout()
+    {
+        await TokenService.RemoveTokenAsync();
+        Navigation.NavigateTo("/login", forceLoad: true);
+        Console.WriteLine("User has logged out.");
+    }
+}

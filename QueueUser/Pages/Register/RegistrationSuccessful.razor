@@ -1,0 +1,37 @@
+﻿@page "/registration-successful"
+@inject NavigationManager NavigationManager
+
+<style>
+    .box-message {
+        background: white;
+
+    }
+</style>
+
+<RadzenCard Variant="@variant" class="rz-my-12 rz-mx-auto" Style="max-width: 420px">
+    <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-4 align-items-center ">
+        <RadzenText TextStyle="TextStyle.Body1"><b>ลงทะเบียนเสร็จสิ้น</b></RadzenText>
+        <RadzenText TextStyle="TextStyle.Body1"><b>การลงทะเบียนเสร็จสมบูรณ์แล้ว</b></RadzenText>
+    </RadzenStack>
+    <div class="mt-2" style="text-align: center;">
+        <button class="btn btn-primary" @onclick="NavigateToNextPage">กลับเข้าสู่ระบบ</button>
+    </div>
+
+</RadzenCard>
+
+
+
+@code {
+
+    Variant variant = Variant.Filled;
+
+
+
+    private void NavigateToNextPage()
+
+    {
+
+        NavigationManager.NavigateTo("/");
+
+    }
+}

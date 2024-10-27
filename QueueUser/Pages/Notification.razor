@@ -1,0 +1,71 @@
+﻿@page "/notification"
+@using Radzen
+@using System.Collections.Generic;
+@using System.Linq;
+@inject IHttpClientFactory HttpClientFactory
+@inject NotificationService NotificationService
+
+<h3>การแจ้งเตือน</h3>
+
+<RadzenNotification />
+
+@if (notifications != null && notifications.Any())
+{
+    <ul class="notification-list">
+        @foreach (var notification in notifications)
+        {
+            <li class="notification-item @(notification.Type == NotificationSeverity.Success ? "success" : "error")">
+                <strong>@notification.Title</strong>
+                <p>@notification.Message</p>
+                <small>@notification.Time.ToString("dd/MM/yyyy HH:mm:ss")</small>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>ไม่มีการแจ้งเตือน</p>
+}
+
+@code {
+    private List<NotificationModel> notifications = new List<NotificationModel>();
+
+    protected override async Task OnInitializedAsync() 
+    {
+        await LoadNotifications();
+    }
+
+    private async Task LoadNotifications()
+    {
+        try
+        {
+            var client = HttpClientFactory.CreateClient("Queue");
+            var response = await client.GetAsync("/api/notifications");
+
+            Console.WriteLine($"สถานะการตอบกลับ: {response.StatusCode}"); // เพิ่มบรรทัดนี้เพื่อดูสถานะการตอบกลับ
+
+            if (response.IsSuccessStatusCode)
+            {
+                notifications = await response.Content.ReadFromJsonAsync<List<NotificationModel>>();
+            }
+            else
+            {
+                Console.WriteLine("ไม่สามารถดึงข้อมูลการแจ้งเตือนได้");
+                var errorContent = await response.Content.ReadAsStringAsync(); // อ่านเนื้อหาข้อผิดพลาด
+                Console.WriteLine($"ข้อผิดพลาด: {errorContent}"); // แสดงเนื้อหาข้อผิดพลาด
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"เกิดข้อผิดพลาดในการดึงข้อมูลการแจ้งเตือน: {ex.Message}");
+        }
+    }
+
+    private class NotificationModel
+    {
+        public string Title { get; set; }
+        public string Message { get; set; }
+        public NotificationSeverity Type { get; set; }
+        public DateTime Time { get; set; }
+    }
+}

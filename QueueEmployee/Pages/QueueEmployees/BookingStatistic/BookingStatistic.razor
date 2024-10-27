@@ -1,0 +1,93 @@
+﻿@page "/booking-statistic"
+@using QMS.Models
+@inject IHttpClientFactory HttpClientFactory
+@using System.Net.Http.Json
+@using System.Text.Json
+@using System.Globalization
+
+
+
+<h3>BookingStatistic</h3>
+<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="0.5rem" class="rz-p-6">
+    <RadzenLabel Text="Select first date"/>
+    <RadzenDatePicker @bind-Value="@minDate" DateFormat="MM/dd/yyyy" Name="DatePickerMinDate" Change="@(async args => await OnDateChanged())" />
+    
+    <RadzenLabel Text="Select end Date" />
+    <RadzenDatePicker @bind-Value="@maxDate" DateFormat="MM/dd/yyyy" Name="DatePickerMinDate" Change="@(async args => await OnDateChanged())" />
+</RadzenStack>
+
+@if (statistics != null)
+{
+
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="1rem" class="graph-container">
+        <LineChartComponent Statistics="statistics"/>
+        <ColumnChart Statistics="statistics" />
+    </RadzenStack>
+
+
+    
+}
+else
+{
+    <p>Loading...</p>
+}
+
+
+@code {
+    private IEnumerable<Statistic> statistics;
+    DateTime minDate = DateTime.Now;
+    DateTime maxDate = DateTime.Now;
+    bool showDataLabels = false;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadStatisticsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"โหลดข้อมูลไม่สำเร็จ: {ex.Message}");
+        }
+    }
+
+    private async Task OnDateChanged()
+    {
+        // ค่าที่ไม่ต้องการการรีเฟรชหน้า
+        if (minDate <= maxDate)
+        {
+            await LoadStatisticsAsync();
+        }
+        else
+        {
+            Console.WriteLine("วันที่เริ่มต้นต้องน้อยกว่าวันที่สิ้นสุด");
+            return;
+        }
+    }
+
+    private async Task LoadStatisticsAsync()
+    {
+        statistics = await GetBookingStatisticsAsync(minDate, maxDate);
+    }
+
+
+    public async Task<IEnumerable<Statistic>> GetBookingStatisticsAsync(DateTime minDate, DateTime maxDate)
+    {
+        var url = $"/api/Statistics/booking-statistics?minDate={minDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}&maxDate={maxDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}";
+        var client = HttpClientFactory.CreateClient("Queue");
+
+        var response = await client.GetAsync(url);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var jsonString = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<IEnumerable<Statistic>>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+
+        throw new Exception($"Status code: {response.StatusCode} โหลดข้อมูลไม่สำเร็จ");
+    }
+
+    
+}

@@ -1,0 +1,97 @@
+﻿@page "/"
+
+@using QMS.Services
+@using QMS.Models
+@using Blazored.SessionStorage
+@inject ISessionStorageService sessionStorage
+@inject IHttpClientFactory HttpClientFactory
+
+
+@inject QueueService QueueService
+@inject NavigationManager NavigationManager
+
+<!--
+<RadzenCard>
+    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">5 characters maximum</RadzenText>
+    <RadzenTextBox @bind-Value=@citizenId MaxLength="13" Change=@(args => OnChange(args)) Style="width: 100%" />
+</RadzenCard>
+<RadzenText>@name</RadzenText>
+-->
+
+<div class="text-center border p-2 custom-border text-color" style="margin: auto; max-width: 90%; width: 550px;">
+    <h1>เลือกประเภทคิว</h1>
+</div>
+
+<div class="button-group">
+    <button class="button-rounded shadow p-4 mb-5" @onclick='() => BookQueue("F")'>เปิด-ปิดบัญชีฝากถอน</button>
+    <button class="button-rounded shadow p-4 mb-5" @onclick='() => BookQueue("L")'>ขอกู้ จ่ายเงินกู้</button>
+    <button class="button-rounded shadow p-4 mb-5" @onclick='() => BookQueue("S")'>สมัครสมาชิก ลาออก ซื้อ-ถอนหุ้น รับชำระหนี้</button>
+    <button class="button-rounded shadow p-4 mb-5" @onclick='() => BookQueue("H")'>อื่น ๆ</button>
+</div>
+
+
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger mt-3">
+        @ErrorMessage
+    </div>
+}
+
+@code {
+    private string? ErrorMessage;
+    private string citizenId = "";
+    private string? name;
+
+    private async Task BookQueue(string queueType)
+    {
+        var result = await QueueService.AddQueueAsync(queueType);
+
+        if (result != null)
+        {
+            var queueId = result.queue_id; // หรือถ้า result เป็นแบบอื่น ให้แก้ไขให้ถูกต้องตามชนิด
+            if (queueId > 0)
+            {
+                await sessionStorage.SetItemAsync("queue", queueId);
+                NavigationManager.NavigateTo($"/queue-ticket", true);
+            }
+            else
+            {
+                ErrorMessage = "ไม่สามารถจองคิวได้ กรุณาลองใหม่อีกครั้ง";
+            }
+        }
+        else
+        {
+            ErrorMessage = "ไม่สามารถจองคิวได้ กรุณาลองใหม่อีกครั้ง";
+        }
+    }
+    private async Task OnChange(string Id)
+    {
+        var client = HttpClientFactory.CreateClient("Queue");
+        var response = await client.GetAsync($"/api/User/citizen-id?citizenId={citizenId}");
+        if (response.IsSuccessStatusCode)
+        {
+            // Deserialize JSON response to extract the 'name'
+            var user = await response.Content.ReadFromJsonAsync<UserResponse>();
+            if (user != null)
+            {
+                name = user.name;
+                Console.WriteLine(name);
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Error: {response.StatusCode}, Message: {await response.Content.ReadAsStringAsync()}");
+        }
+
+        StateHasChanged();
+    }
+
+
+    private class UserResponse
+    {
+        public int user_id { get; set; }
+        public string citizen_id { get; set; }
+        public string name { get; set; }
+    }
+}

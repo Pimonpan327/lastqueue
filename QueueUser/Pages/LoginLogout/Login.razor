@@ -1,0 +1,125 @@
+﻿@page "/login"
+@using Microsoft.AspNetCore.Components.Forms
+@using QMS.Data
+@using QMS.Data.Entities
+@using QMS.Models
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime js
+@inject NavigationManager Navigation
+
+
+
+
+<RadzenRow Gap="0" class="rz-my-12 rz-mx-auto rz-border-radius-6 rz-shadow-10" Style="width: 100%; max-width: 70%; overflow: hidden;">
+    <RadzenColumn Size="12" SizeMD="6">
+        <RadzenCard class="rz-shadow-0 rz-border-radius-0 rz-text-align-center rz-p-12" Style="height: 100%; background: var(--rz-primary-light) no-repeat 100% 70% fixed">
+
+            <RadzenText TextStyle="TextStyle.DisplayH3" TagName="TagName.H2" class="rz-color-white rz-mb-0">ยินดีต้อนรับ</RadzenText>
+        </RadzenCard>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6">
+        <RadzenCard class="rz-shadow-0 rz-border-radius-0 rz-p-12">
+            <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H2" class="rz-mb-6 text-center">
+                Login
+            </RadzenText>
+            <EditForm Model="loginModel"  OnValidSubmit="HandleLogin">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <RadzenStack Gap="1rem" Orientation="Orientation.Vertical" Style="margin-inline: 7%;">
+                    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                        <RadzenLabel Text="เลขบัตรประชาชน"/>
+                        <InputText @bind-Value="loginModel.CitizenId"/>
+
+                    </RadzenStack> 
+                    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                        <RadzenLabel Text="รหัสผ่าน" />
+                        <InputText @bind-Value="loginModel.Password" type="password" />
+                    </RadzenStack>
+                        <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+                            <label><InputCheckbox @bind-Value="rememberMe" /> Remember Me</label>
+                            <RadzenLink Path="forgot-password" Text="ลืมรหัสผ่าน?" />
+
+                    </RadzenStack>
+                    <RadzenButton Shade="Shade.Light" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Medium" Icon="login" class="rz-mt-2" Style="border-radius: 25px;" >
+                        <RadzenLink Path="register" Text="ลงทะเบียน" Style="color:white;"/>
+                    </RadzenButton>
+
+
+                </RadzenStack>
+                
+                <RadzenStack JustifyContent="JustifyContent.Center">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Medium" Icon="login" Text="Login" type="submit" class="rz-mt-2" Style="border-radius: 25px;"/>
+                </RadzenStack>
+            </EditForm>
+
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <p style="color:red">@errorMessage</p>
+            }
+
+            
+
+        </RadzenCard>
+    </RadzenColumn>
+</RadzenRow>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+    private string errorMessage;
+    private bool rememberMe = false; // ตัวเลือก Remember Me
+
+
+
+    private async Task HandleLogin()
+    {
+        if (string.IsNullOrWhiteSpace(loginModel.CitizenId) || string.IsNullOrWhiteSpace(loginModel.Password))
+        {
+            errorMessage = "โปรดกรอกข้อมูลให้ครบถ้วน";
+            return;
+        }
+        try
+        {
+            var client = HttpClientFactory.CreateClient("Queue");
+            var response = await client.PostAsJsonAsync("/api/LogicRegister/login", loginModel);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<TokenResponse>();
+                // เก็บ JWT token ไว้เพื่อใช้ในภายหลัง
+                var token = result.Token;
+
+                if (rememberMe)
+                {
+                    // เก็บ token ใน localStorage ถ้าเลือก Remember Me
+                    await js.InvokeVoidAsync("localStorage.setItem", "jwtToken", token);
+                }
+                else
+                {
+                    // เก็บ token ใน sessionStorage ถ้าไม่เลือก Remember Me
+                    await js.InvokeVoidAsync("sessionStorage.setItem", "jwtToken", token);
+                }
+
+
+
+                Navigation.NavigateTo("/booking", true);
+
+            }
+            else
+            {
+                errorMessage = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Login failed: {errorMessage}");
+
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+    }
+
+
+
+
+
+    
+}

@@ -1,0 +1,70 @@
+﻿@using Radzen.Blazor;
+@using System.Net.Http.Headers;
+@using Newtonsoft.Json.Linq;
+@inject TokenService TokenService
+
+
+<nav>
+    <RadzenPanelMenu>
+        <RadzenPanelMenuItem Text="จองคิวออนไลน์" Icon="event" Path="/booking" />
+        <RadzenPanelMenuItem Text="ข้อมูลส่วนตัว" Icon="account_box" Path="/profile" />
+        <RadzenPanelMenuItem Text="รายละเอียดการจองคิว" Icon="account_box" Path="/cancel-booking" />
+
+
+    </RadzenPanelMenu>
+</nav>
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+    [Inject] private IJSRuntime JSRuntime { get; set; }
+    [Inject] private HttpClient HttpClient { get; set; }
+
+    bool multiple = false;
+    private bool firstRender = true;
+    private string bearerToken;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            this.firstRender = false;
+
+            try
+            {
+                // ดึงโทเค็นจาก LocalStorage เมื่อการเรนเดอร์เสร็จสมบูรณ์
+                bearerToken = await TokenService.GetTokenAsync();
+
+                if (!string.IsNullOrEmpty(bearerToken))
+                {
+                    // Check if the token is expired
+                    if (TokenService.IsTokenExpired(bearerToken))
+                    {
+                        await Logout(); // Redirect to login
+                        return;
+                    }
+                    // ตั้งค่า Bearer Token ให้กับ HttpClient
+                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+                }
+                else
+                {
+                    await Logout(); // No token found, redirect to login
+                }
+            }
+            catch (Exception ex)
+            {
+                // จัดการข้อผิดพลาดถ้ามี
+                Console.WriteLine($"Error loading token: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task Logout()
+    {
+        // ลบโทเค็นออกจาก LocalStorage
+        await TokenService.RemoveTokenAsync();
+
+        // นำทางกลับไปยังหน้าเข้าสู่ระบบหรือหน้าแรก
+        NavigationManager.NavigateTo("/login");
+    }
+
+}

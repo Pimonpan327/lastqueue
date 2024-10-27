@@ -1,0 +1,194 @@
+﻿﻿
+@page "/cancel-booking/"
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime js
+@using QMS.Models
+@inject NavigationManager Navigation
+@using System.Text.Json;
+@inject TokenService TokenService
+
+<h3 class="text-center border p-2 custom-border" style="margin: auto; max-width: 90%; width: 550px;">ข้อมูลการจองคิว</h3>
+
+<div class="">
+    <p class="mt-5 text-center" style="font-size: 130%;">กรุณาปริ้นหลักฐานการจองหรือถ่ายภาพหน้าจอการข้อมูลการจองเพื่อยื่นให้พนักงาน</p>
+    <p class="text-center" style="font-size: 130%;">ขอความกรุณาลูกค้าทุกท่านมาก่อนเวลานัด 30 นาที สำหรับยื่นหลักฐานการจองต่อพนักงาน และรอรับบริการ</p>
+</div>
+
+@if(filterExpanded)
+{
+    <div class="filter-bar @(filterExpanded ? "show" : "")">
+
+        <RadzenText TextStyle="TextStyle.Body1" Style="font-size: 1.5rem; text-align: center"><b>กรองคิว</b></RadzenText>
+
+        <div class="filter-options">
+            <RadzenLabel Text="เลือกประเภทธุรกรรม" Component="TypeFilter" class="" />
+            <RadzenDropDown @bind-Value="selectedQueueType" Placeholder="เลือกประเภทคิว" Data="queueTypeOptions" />
+        </div>
+
+        <div class="filter-options">
+            <RadzenLabel Text="Appointment Date" Component="AppointmentDateFilter" class="rz-ms-2" />
+
+            <RadzenCheckBox TValue="bool" Value=@appointmentDateFilter Change="(arg => { appointmentDateFilter = !appointmentDateFilter;})" Name="AppointmentDateFilter" />
+        </div>
+
+        <!--sort-->
+        <RadzenText TextStyle="TextStyle.Body1" Style="font-size: 1.5rem; text-align: center; margin-top:50px;"><b>เรียงลำดับตาม</b></RadzenText>
+
+        <div class="filter-options">
+            <RadzenDropDown @bind-Value="selectedSortOption" Placeholder="เลือกการเรียงลำดับ" Data="sortOptions"/>
+        </div>
+
+        <div class="filter-options">
+            <RadzenLabel Text="วันที่เริ่มต้น" Component="StartDateFilter" />
+            <RadzenDatePicker @bind-Value="startDate" />
+        </div>
+
+        <div class="filter-options">
+            <RadzenLabel Text="วันที่สิ้นสุด" Component="EndDateFilter" />
+            <RadzenDatePicker @bind-Value="endDate" />
+        </div>
+
+        <RadzenButton Text="ปิด" Shade="Shade.Dark" Click="ToggleFilter" ButtonStyle="ButtonStyle.Base" Style="text-align: center; margin-top:50px;" />
+       
+    </div>
+
+}
+
+
+<div class="booking-container rz-p-0 rz-p-md-12">
+    @if (isLoading == true)
+    {
+        <p>กำลังโหลด</p>
+    }
+    else if (FilteredBookings != null && FilteredBookings.Count() > 0)
+    {
+        <div class="justify-content-evenly">
+            
+            <RadzenButton Click=@(args => ToggleFilter()) Text="กรอง" />
+        </div>
+        
+
+            <CancelCard Bookings="@bookings"
+                            Variant="@variant"
+                            OnBookingCancelled="LoadQueueData"
+                            SelectedQueueType="@selectedQueueType"
+                            AppointmentDateFilter="@appointmentDateFilter"
+                            StartDate="@startDate"
+                            EndDate="@endDate"
+                            SelectedSortOption="@selectedSortOption">
+
+                </CancelCard>
+            
+    }
+    else
+    {
+        <RadzenAlert Severity="Error">@message</RadzenAlert>
+    }
+</div> 
+
+@code {
+
+    private Variant variant = Variant.Filled;
+    private int? userId;
+    private List<BookingModel> bookings = new List<BookingModel>();
+    private string? message;
+    private bool isLoading = false;
+
+
+
+    //filter
+    private bool filterExpanded = false;
+
+    private string selectedQueueType = "All";
+    private string selectedQueueTypeTemp = "All"; // ตัวแปรชั่วคราวสำหรับการเลือก
+
+    private bool appointmentDateFilter = false;
+    private bool appointmentDateFilterTemp = false; // ตัวแปรชั่วคราวสำหรับการเลือก
+
+    private IEnumerable<BookingModel> FilteredBookings => bookings.Where(b => selectedQueueType == "All" || b.QueueType == selectedQueueType);
+    private List<string> queueTypeOptions = new List<string> { "All", "Loan", "Finance", "Shares", "Other" };
+
+    private DateTime? startDate;
+    private DateTime? endDate;
+    //sort
+    private string selectedSortOption = "วันที่จอง"; // ตัวเลือกการเรียงลำดับเริ่มต้น
+    private List<string> sortOptions = new List<string> { "วันที่จอง" ,"วันที่นัดหมาย", "ประเภทธุรกรรม", "สถานะ" }; // ตัวเลือกการเรียงลำดับ
+    
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            await LoadQueueData();
+
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching user profile: {ex.Message}");
+            message = $"เกิดข้อผิดพลาดในการโหลดข้อมูลการจอง: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+
+    
+
+    private void ToggleFilter()
+    {
+        filterExpanded = !filterExpanded;
+
+        StateHasChanged();
+    }
+
+
+
+
+
+
+    private async Task LoadQueueData()
+    {
+        isLoading = true;
+        var token = await TokenService.GetTokenAsync();
+        if (string.IsNullOrEmpty(token) || TokenService.IsTokenExpired(token))
+        {
+            await TokenService.RemoveTokenAsync();
+            Navigation.NavigateTo("/login");
+            return;
+        }
+        var userId = TokenService.GetUserIdFromToken(token);
+        if (userId.HasValue)
+        {
+            var client = HttpClientFactory.CreateClient("Queue");
+            client.DefaultRequestHeaders.Authorization =
+                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.GetAsync($"/api/Booking/profile/{userId.Value}");
+            if (response.IsSuccessStatusCode)
+            {
+                bookings = await response.Content.ReadFromJsonAsync<List<BookingModel>>();
+
+                StateHasChanged();
+            }
+            else
+            {
+                message = $"เกิดข้อผิดพลาดในการโหลดข้อมูล: {response.ReasonPhrase}";
+            }
+        }
+        else
+        {
+            await TokenService.RemoveTokenAsync();
+            Navigation.NavigateTo("/login");
+        }
+        isLoading = false;
+
+    }
+
+    
+}

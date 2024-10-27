@@ -1,0 +1,172 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|c:\\users\\loq\\desktop\\lastgit\\queueuser\\pages\\booking\\booking.razor.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|solutionrelative:pages\\booking\\booking.razor.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|c:\\users\\loq\\desktop\\lastgit\\queueuser\\pages\\booking\\booking.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|solutionrelative:pages\\booking\\booking.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|c:\\users\\loq\\desktop\\lastgit\\queueuser\\pages\\loginlogout\\login.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|solutionrelative:pages\\loginlogout\\login.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|c:\\users\\loq\\desktop\\lastgit\\queueuser\\pages\\profile\\edituserprofile.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|solutionrelative:pages\\profile\\edituserprofile.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|c:\\users\\loq\\desktop\\lastgit\\queueuser\\pages\\profile\\userprofile.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|solutionrelative:pages\\profile\\userprofile.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|c:\\users\\loq\\desktop\\lastgit\\queueuser\\pages\\register\\register.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|solutionrelative:pages\\register\\register.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|c:\\users\\loq\\desktop\\lastgit\\queueuser\\pages\\register\\registrationsuccessful.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|solutionrelative:pages\\register\\registrationsuccessful.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|c:\\users\\loq\\desktop\\lastgit\\queueuser\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CE27CAA5-165F-4E38-AE43-046442C2C853}|QMS.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Booking.razor.css",
+              "DocumentMoniker": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Booking\\Booking.razor.css",
+              "RelativeDocumentMoniker": "Pages\\Booking\\Booking.razor.css",
+              "ToolTip": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Booking\\Booking.razor.css",
+              "RelativeToolTip": "Pages\\Booking\\Booking.razor.css",
+              "ViewState": "AgIAABAAAAAAAAAAAAAiwC0AAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2024-10-27T07:40:54.85Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Login.razor",
+              "DocumentMoniker": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\LoginLogout\\Login.razor",
+              "RelativeDocumentMoniker": "Pages\\LoginLogout\\Login.razor",
+              "ToolTip": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\LoginLogout\\Login.razor",
+              "RelativeToolTip": "Pages\\LoginLogout\\Login.razor",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-25T06:14:40.154Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Booking.razor",
+              "DocumentMoniker": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Booking\\Booking.razor",
+              "RelativeDocumentMoniker": "Pages\\Booking\\Booking.razor",
+              "ToolTip": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Booking\\Booking.razor",
+              "RelativeToolTip": "Pages\\Booking\\Booking.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-25T06:12:12.137Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "EditUserProfile.razor",
+              "DocumentMoniker": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Profile\\EditUserProfile.razor",
+              "RelativeDocumentMoniker": "Pages\\Profile\\EditUserProfile.razor",
+              "ToolTip": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Profile\\EditUserProfile.razor",
+              "RelativeToolTip": "Pages\\Profile\\EditUserProfile.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABABAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-27T07:39:18.635Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "UserProfile.razor",
+              "DocumentMoniker": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Profile\\UserProfile.razor",
+              "RelativeDocumentMoniker": "Pages\\Profile\\UserProfile.razor",
+              "ToolTip": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Profile\\UserProfile.razor",
+              "RelativeToolTip": "Pages\\Profile\\UserProfile.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-27T07:35:37.883Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Register.razor",
+              "DocumentMoniker": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Register\\Register.razor",
+              "RelativeDocumentMoniker": "Pages\\Register\\Register.razor",
+              "ToolTip": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Register\\Register.razor",
+              "RelativeToolTip": "Pages\\Register\\Register.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-25T06:14:27.358Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "RegistrationSuccessful.razor",
+              "DocumentMoniker": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Register\\RegistrationSuccessful.razor",
+              "RelativeDocumentMoniker": "Pages\\Register\\RegistrationSuccessful.razor",
+              "ToolTip": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Pages\\Register\\RegistrationSuccessful.razor",
+              "RelativeToolTip": "Pages\\Register\\RegistrationSuccessful.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-27T07:38:10.813Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\LOQ\\Desktop\\lastgit\\QueueUser\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-27T07:36:34.204Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

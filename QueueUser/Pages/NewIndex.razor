@@ -1,0 +1,69 @@
+﻿@page "/"
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Navigation
+@using QMS.Models
+@inject TokenService TokenService
+
+
+<h3>Welcome to the Application</h3>
+
+        <p>กำลังโหลด</p>
+
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+            // ตรวจสอบ token หลังจาก render เสร็จ
+                var token = await TokenService.GetTokenAsync();
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                // ดึง userId จาก token
+                var userId = TokenService.GetUserIdFromToken(token);
+
+                if (userId.HasValue)
+                {
+                        var client = HttpClientFactory.CreateClient("Queue");
+
+                        client.DefaultRequestHeaders.Authorization =
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                        var response = await client.GetAsync($"/api/User?userId={userId.Value}");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                            Navigation.NavigateTo("/booking");
+                        }
+                    else
+                    {
+                            await TokenService.RemoveTokenAsync();
+                            Navigation.NavigateTo("/login");
+                    }
+                }
+                else
+                {
+                        await TokenService.RemoveTokenAsync();
+                        Navigation.NavigateTo("/login");
+                }
+            }
+            else
+            {
+                Navigation.NavigateTo("/login");
+            }
+            }
+            catch (Exception ex)
+            {
+                // การจัดการข้อผิดพลาด
+                Console.WriteLine($"Error: {ex.Message}");
+                await TokenService.RemoveTokenAsync();
+                Navigation.NavigateTo("/login");
+            }
+        }
+    }
+}
+

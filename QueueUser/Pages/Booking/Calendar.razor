@@ -1,0 +1,295 @@
+﻿@page "/booking-calendar/{transaction}"
+@using QMS.Models
+@inject IJSRuntime JSRuntime
+@inject BookingService BookingService
+@using Microsoft.JSInterop;
+@inject NavigationManager Navigation
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@inject TokenService TokenService
+@inject IJSRuntime JsRuntime
+@using System.Text.Json
+@using System.Globalization
+
+
+
+
+
+
+<h3 class="text-center"><strong>จองคิว @TransformQueueType(transaction)</strong></h3>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <p class="@(message.Contains("สำเร็จ") ? "message-success" : "message-error")">@((MarkupString)message)</p>
+}
+
+<div id="calendar" style="width: 50%; height: 50vh; margin: 0 auto; border: 1px solid #ddd;"></div>
+
+
+@if (isPopupVisible)
+{
+    <div class="modal" style="display: block;" @onclick="ClosePopup">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <span class="close" @onclick="ClosePopup">&times;</span>
+            <h4 class="text-center mb-4"><strong>จองคิววันที่ @selectedDate.ToString("dd/MM/yyyy")</strong></h4>
+            
+            <RadzenStack Orientation="Orientation.Vertical" Gap="1rem">
+                @RenderBookingSlot(8, total08)
+                @RenderBookingSlot(13, total13)
+            </RadzenStack>
+
+        </div>
+    </div>
+}
+
+@if (isConfirmationVisible)
+{
+    <div class="modal" style="display: block;" @onclick="CancelConfirmation">
+        <div class="modal-content" style="margin: 10% auto; width: 50%;" @onclick:stopPropagation="true">
+            <RadzenCard Style="padding: 20px;">
+
+
+                <h4 class="text-center"><strong>ยืนยันการจอง</strong></h4>
+                <div class="modal-detail">
+                    <p>ประเภทธุรกรรม: @TransformQueueType(transaction)</p>
+                    <p>วันที่: @selectedDate.ToString("dd/MM/yyyy")</p>
+                    <p>เวลา: @(selectedHour == 8 ? "08:00" : "13:00")</p>
+                </div>
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem" class="rz-mt-4 justify-content-center">
+                    <RadzenButton Text="ยกเลิก" Click="CancelConfirmation" Style="margin: 10px; background-color:red;" />
+                    <RadzenButton Text="ยืนยัน" Click="ConfirmBooking" Style="margin: 10px; background-color:green;"/>
+                </RadzenStack>
+            </RadzenCard>
+        </div>
+    </div>
+}
+
+
+
+@code {
+    [Parameter] public string transaction { get; set; }
+
+    private bool isPopupVisible = false;
+    private bool isConfirmationVisible = false;
+
+    private DateTime selectedDate;
+    private int total08;
+    private int total13;
+    private int selectedHour;
+
+    private List<CalendarBooking> bookingResults;
+    private string message;
+
+    private DotNetObjectReference<Calendar> objRef;
+
+    // Dictionary สำหรับแปลงค่า QueueType
+    private Dictionary<string, string> queueTypeMappings = new Dictionary<string, string>
+    {
+        { "L", "ขอกู้ จ่ายเงินกู้" },
+        { "F", "เปิด-ปิดบัญชีฝากถอน" },
+        { "S", "สมัครสมาชิก ลาออก ซื้อ-ถอนหุ้น รับชำระหนี้" },
+        { "H", "อื่นๆ"}
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        bookingResults = await BookingService.GetQueueOnDate(transaction);
+        StateHasChanged();
+    }
+
+    private void ClosePopup()
+    {
+        isPopupVisible = false;
+        message = string.Empty; // เคลียร์ข้อความเมื่อปิด popup
+
+    }
+
+    private void ShowConfirmation(int hour)
+    {
+        selectedHour = hour;
+        isConfirmationVisible = true;
+    }
+
+
+
+    private async Task ConfirmBooking()
+    {
+        // ดำเนินการจองเมื่อยืนยันแล้ว
+        await BookTimeSlot(selectedHour);
+        isConfirmationVisible = false; // ปิดการยืนยันเมื่อจองเสร็จ
+
+        // เพิ่มการแจ้งเตือนเมื่อจองสำเร็จ
+        StateHasChanged(); // อัปเดต UI หลังจากจองเสร็จ
+    }
+
+    private void CancelConfirmation()
+    {
+        isConfirmationVisible = false;
+    }
+
+    [JSInvokable]
+    public async Task<bool> CheckBookingAvailability(string dateStr)
+    {
+        selectedDate = DateTime.Parse(dateStr);
+        bookingResults = await BookingService.GetQueueOnDate(transaction);
+
+        var total08 = bookingResults.FirstOrDefault(b => b.Date.Date == selectedDate.Date && b.Time.Hours == 8)?.Total ?? 0;
+        var total13 = bookingResults.FirstOrDefault(b => b.Date.Date == selectedDate.Date && b.Time.Hours == 13)?.Total ?? 0;
+
+        return total08 < 10 || total13 < 10;  // คืนค่า true หากสามารถจองได้
+    }
+
+
+    [JSInvokable] // ตรวจสอบให้แน่ใจว่ามีการประกาศ JSInvokable
+    public void ShowPopup(string dateStr)
+    {
+        // ใช้ TryParse เพื่อแปลง dateStr เป็น selectedDate
+        if (DateTime.TryParse(dateStr, out selectedDate))
+        {
+            var formattedDate = selectedDate;
+
+            if (selectedDate.Year < 2020)
+            {
+                formattedDate = formattedDate.AddYears(543);
+            }
+
+        // หากการแปลงสำเร็จ ให้คำนวณ total08 และ total13
+            total08 = bookingResults.FirstOrDefault(b => b.Date.Date == formattedDate.Date && b.Time.Hours == 8)?.Total ?? 0;
+            total13 = bookingResults.FirstOrDefault(b => b.Date.Date == formattedDate.Date && b.Time.Hours == 13)?.Total ?? 0;
+
+            // แสดงผลวันที่ในรูปแบบ ค.ศ.
+            
+            Console.WriteLine($"Selected Date in AD (CE): {selectedDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}");
+            Console.WriteLine($"Raw Selected Date: {selectedDate}");
+
+            isPopupVisible = true; // เปิด Popup
+        }
+        else
+        {
+            // หากการแปลงไม่สำเร็จ ให้แสดงข้อความแสดงข้อผิดพลาด
+            Console.WriteLine("cann't convert");
+        }
+
+        StateHasChanged();
+
+    }
+
+    private async Task BookTimeSlot(int hour)
+    {
+        try
+        {
+            var token = await TokenService.GetTokenAsync();
+
+            if (string.IsNullOrEmpty(token) || TokenService.IsTokenExpired(token))
+            {
+                await TokenService.RemoveTokenAsync();
+                Navigation.NavigateTo("/login");
+                return;
+            }
+
+            var userId = TokenService.GetUserIdFromToken(token);
+
+            if (userId.HasValue)
+            {
+                // Set the Authorization header
+                Http.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+
+                Console.WriteLine($"select date {selectedDate}");
+                Console.WriteLine($"Selected Date: {selectedDate.ToString("dd/MM/yyyy")}");
+                var request = new AddBookingRequest
+                        {
+                            UserId = userId.Value, // กำหนดค่า user ID
+                            Type = transaction, // กำหนด queue_type_id
+                            AppointmentDate = selectedDate,
+                            AppointmentTime = hour == 8 ? "08:00" : "13:00"
+                        };
+                var requestJson = JsonSerializer.Serialize(request);
+
+                Console.WriteLine(requestJson);
+                    // ดำเนินการจอง
+                    var response = await BookingService.BookSlot(request);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // จองสำเร็จ
+                        await RefreshBookingData();
+                        message = $@"คุณได้จองคิวประเภท{@TransformQueueType(transaction)}<br/>
+                            ในวันที่ {request.AppointmentDate.ToString("dd/MM/yyyy")} เวลา {(hour == 8 ? "08:00" : "13:00")} สำเร็จแล้ว!"; // เพิ่มข้อความแจ้งเตือนสำเร็จ
+
+                    }
+                    else
+                    {
+                        // ดึงข้อความแจ้งเตือนจาก API
+                        message = await response.Content.ReadAsStringAsync();
+                        await RefreshBookingData();
+                    }
+
+
+                }
+                else
+                {
+
+                    await TokenService.RemoveTokenAsync();
+                    Navigation.NavigateTo("/login");
+                }
+
+
+            
+            
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching {ex.Message}");
+            await TokenService.RemoveTokenAsync();
+            Navigation.NavigateTo("/login");
+        }
+        
+        
+    }
+
+
+    private async Task RefreshBookingData()
+    {
+        bookingResults = await BookingService.GetQueueOnDate(transaction);
+        total08 = bookingResults.FirstOrDefault(b => b.Date.Date == selectedDate.Date && b.Time.Hours == 8)?.Total ?? 0;
+        total13 = bookingResults.FirstOrDefault(b => b.Date.Date == selectedDate.Date && b.Time.Hours == 13)?.Total ?? 0;
+        
+        isPopupVisible = false;
+        StateHasChanged();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            JSRuntime.InvokeVoidAsync("initializeCalendar", objRef);
+        }
+    }
+
+    public void Dispose()
+    {
+        objRef?.Dispose();
+    }
+
+    
+
+    private string TransformQueueType(string queueType)
+    {
+        return queueTypeMappings.TryGetValue(queueType, out var thaiValue) ? thaiValue : queueType;
+    }
+
+    private RenderFragment RenderBookingSlot(int hour, int total) => @<p>
+        @hour:00 ว่าง @(10 - total) คิว
+        @if (total < 10)
+    {
+        <button @onclick="() => ShowConfirmation(hour)" class="booking-button">จอง @hour:00</button>
+    }
+    else
+    {
+        <span style="color: red;">ไม่สามารถจองได้</span>
+    }
+    </p>;
+}
